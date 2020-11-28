@@ -1,0 +1,106 @@
+#!/data/data/com.termux/files/usr/bin/python3
+
+# Import the necessary packages
+from consolemenu import *
+from consolemenu.items import *
+
+from time import sleep
+
+import os
+
+# Create the menu
+menu = ConsoleMenu( "SSH Sites", "Select a site to SSH to." )
+
+sites = []
+rawsites = []
+
+user = ""
+
+def changeuser(usr = None):
+
+    global user
+
+    if not usr:
+
+        inp = input( "Select user: " )
+
+        if inp.strip() != "":
+
+            user = f"{inp}@"
+
+        else:
+
+            user = ""
+
+    else:
+
+        user = usr
+
+def getuser():
+
+    print("Selected User:\n")
+    print(user)
+
+    input("\n\nGo Back?")
+
+submen = [FunctionItem( f"Change User", changeuser )]
+
+with open("/data/data/com.termux/files/home/ssh-menu/users") as file:
+
+    for user2 in file:
+
+        if user2.replace("\n", "") != "":
+
+            user2 = user2.replace("\n", "")
+
+            submen.append( FunctionItem( user2, changeuser, [f"{user2}@"]) ) 
+
+submen.append( FunctionItem( "Get Selected User", getuser ) )
+
+submen.append( CommandItem( "Edit Users (Requires Program Restart)", "nano ~/ssh-menu/users" ) )
+
+cmenu = ConsoleMenu( "Change User" )
+
+for thing in submen:
+
+    cmenu.append_item( thing )
+
+sites.append( SubmenuItem( "Change User", cmenu, menu) )
+
+with open( "/data/data/com.termux/files/home/ssh-menu/sites", "r" ) as file:
+
+    for line in file:
+
+        if line.replace( "\n", "" ) != "":
+
+            rawsites.append( line.replace( "\n", "" ) )
+
+def sshto(item):
+
+    global user
+
+    os.system(f"ssh {user}{item}")
+
+for item in rawsites:
+
+    sites.append( FunctionItem( item, sshto, [item] ) )
+
+sites.append( CommandItem( "Edit Sites (Requires Program Restart)", "nano ~/ssh-menu/sites" ) )
+
+def check(user):
+
+    print( user + "10.0.0.112" )
+
+    input()
+
+#sites.append( FunctionItem( "Check Site (Debug)", check, [user] ) )
+
+
+for item in sites:
+
+    menu.append_item( item )
+
+
+
+# Finally, we call show to show the menu and allow the user to interact
+menu.show()
