@@ -43,6 +43,14 @@ def getuser():
 
     input("\n\nGo Back?")
 
+def convngrok():
+
+   link = input( "Link To Connect To: " )
+
+   ip, port = link.split(":")
+
+   os.system( f"ssh {user}{ip} -p{port}" )
+
 submen = [FunctionItem( f"Change User", changeuser )]
 
 with open("/data/data/com.termux/files/home/ssh-menu/users") as file:
@@ -84,6 +92,8 @@ def sshto(item):
 for item in rawsites:
 
     sites.append( FunctionItem( item, sshto, [item] ) )
+
+sites.append( FunctionItem( "Ngrok Link", convngrok ) )
 
 sites.append( CommandItem( "Edit Sites (Requires Program Restart)", "nano ~/ssh-menu/sites" ) )
 
